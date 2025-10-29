@@ -1,196 +1,291 @@
-<div class="min-h-screen bg-gradient-to-b from-[#131128] to-[#242142] text-slate-200 overflow-x-hidden">
-  @if(isLoading()) {
-    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#131128] animate-fadeIn">
-      <div class="relative w-24 h-24 text-amber-300 animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"></path><path d="M12 5c-3.859 0-7 3.141-7 7s3.141 7 7 7 7-3.141 7-7-3.141-7-7-7zm0 12c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path><path d="M12 9c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3z"></path>
-        </svg>
-      </div>
-      <h1 class="font-serif text-3xl font-bold mt-6 text-amber-100/90 tracking-widest animate-fadeIn" style="animation-delay: 200ms;">THE UNIVERSE GUIDANCE</h1>
-      <p class="text-amber-200/60 mt-2 animate-fadeIn" style="animation-delay: 400ms;">Aligning your cosmic journey...</p>
-    </div>
-  } @else {
-    <app-voice-assistant [isOpen]="isVoiceAssistantOpen()" (close)="isVoiceAssistantOpen.set(false)"></app-voice-assistant>
+import { Injectable } from '@angular/core';
+import { GoogleGenAI, Type } from '@google/genai';
 
-    <main class="relative z-10 p-6 pb-28">
-      @switch (page()) {
-        @case ('home') {
-          <div class="flex flex-col h-full gap-6 animate-fadeIn">
-            <header class="flex justify-between items-center">
-              <button class="text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636" /></svg></button>
-              <h1 class="font-serif text-2xl font-bold text-amber-100/90">Cosmic Insights</h1>
-              <button (click)="isVoiceAssistantOpen.set(true)" class="text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 016 0v8.25a3 3 0 01-3 3z" />
-                </svg>
-              </button>
-            </header>
-            
-            <div (click)="navigateTo('dailyHoroscope')" class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-left flex items-center justify-between cursor-pointer animate-slideIn">
-              <div>
-                <h2 class="font-serif text-lg text-amber-200">Your Daily Horoscope</h2>
-                <p class="text-sm text-slate-400">{{horoscopeDateSubheader()}}</p>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-amber-300"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-            </div>
+// This will be populated by the esbuild --define option in the build script
+declare var process: {
+  env: {
+    API_KEY: string;
+  }
+};
 
-            <div class="grid grid-cols-2 gap-4">
-              <div (click)="navigateTo('palmReading')" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors animate-scaleUp" style="animation-delay: 100ms;">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5c-4.23.9-7.82.0-10-2C-.17 17.5.3 14.2.83 11.5S2 6.5 4 4.5s4-2 6-2 4 .5 6 2.5c2.5 2.5 3.5 5.5 3.5 7.5.55 2.76 1.48 5.48 1.5 6.5a10.8 10.8 0 0 1-3.5 4.5c-2.75 1.5-6 1-8.5 0Z"/><path d="M4 14.5c-1.5 1-2 2-2 3.5"/><path d="M12 12.5a2.5 2.5 0 0 0-5 0v5.5"/><path d="M22 14.5c-1.5 1-2 2-2 3.5"/><path d="M14.5 18.5a2.5 2.5 0 0 0 0-5"/><path d="M8 12.5a2.5 2.5 0 0 0-5 0v5.5"/></svg>
-                <h3 class="font-serif text-lg mt-3 text-amber-200">Palm Reading</h3>
-                <p class="text-xs text-slate-400 mt-1">Unlock secrets in your hand.</p>
-              </div>
-              <div (click)="navigateTo('kundali')" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors animate-scaleUp" style="animation-delay: 200ms;">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/><path d="M12 12 8 22"/><path d="m12 12 10-4"/><path d="M12 12 2 8"/></svg>
-                <h3 class="font-serif text-lg mt-3 text-amber-200">Kundali Chart</h3>
-                <p class="text-xs text-slate-400 mt-1">Vedic birth chart analysis.</p>
-              </div>
-            </div>
+export interface PalmReading {
+  lifeLine: string;
+  heartLine: string;
+  headLine: string;
+  fateLine: string;
+}
 
-          </div>
-        }
-        @case ('dailyHoroscope') {
-          <div class="animate-fadeIn">
-            <button (click)="goBack()" class="mb-4 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-            <h1 class="font-serif text-3xl font-bold mb-1">Daily Horoscope</h1>
-            <p class="text-slate-400 mb-6">{{horoscopeDateHeader()}}</p>
-            <div class="flex justify-between bg-slate-800/60 rounded-full p-1 mb-6">
-              <button (click)="horoscopeTab.set('love')" class="w-full py-2 rounded-full text-sm font-semibold transition-colors" [class.bg-amber-400/20]="horoscopeTab() === 'love'" [class.text-amber-200]="horoscopeTab() === 'love'">Love</button>
-              <button (click)="horoscopeTab.set('career')" class="w-full py-2 rounded-full text-sm font-semibold transition-colors" [class.bg-amber-400/20]="horoscopeTab() === 'career'" [class.text-amber-200]="horoscopeTab() === 'career'">Career</button>
-              <button (click)="horoscopeTab.set('health')" class="w-full py-2 rounded-full text-sm font-semibold transition-colors" [class.bg-amber-400/20]="horoscopeTab() === 'health'" [class.text-amber-200]="horoscopeTab() === 'health'">Health</button>
-            </div>
-            <div class="space-y-4 text-slate-300 leading-relaxed">
-              <p>Today's cosmic energies are highlighting your romantic sector. If you're single, a chance encounter could lead to something meaningful. For those in a relationship, it's a perfect day to deepen your connection. Open communication will be key to unlocking new levels of intimacy and understanding.</p>
-              <p>Be patient and trust in the universe's timing.</p>
-            </div>
-          </div>
-        }
-        @case ('calendar') {
-          <div class="animate-fadeIn">
-            <button (click)="goBack()" class="mb-4 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-            <div class="flex justify-between items-center mb-6">
-              <h1 class="font-serif text-3xl font-bold">{{monthName()}} {{currentDate().getFullYear()}}</h1>
-              <div class="flex gap-2">
-                <button (click)="prevMonth()" class="p-2 bg-slate-800/60 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-                <button (click)="nextMonth()" class="p-2 bg-slate-800/60 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg></button>
-              </div>
-            </div>
-            <div class="grid grid-cols-7 gap-2 text-center text-sm text-slate-400 mb-3">
-              @for(day of weekdays; track day) { <div>{{day}}</div> }
-            </div>
-            <div class="grid grid-cols-7 gap-2 text-center">
-              @for(day of calendarDays(); track $index) {
-                <div class="w-10 h-10 flex items-center justify-center rounded-full" [class.bg-amber-400/20]="day === currentDate().getDate()" [class.text-amber-200]="day === currentDate().getDate()">
-                  {{day}}
-                </div>
-              }
-            </div>
-          </div>
-        }
-        @case ('switchWords') {
-          <div class="animate-fadeIn">
-            @if (!selectedSwitchWordCategory()) {
-              <div>
-                <h1 class="font-serif text-3xl font-bold mb-1">Switch Words</h1>
-                <p class="text-slate-400 mb-8">Tap a category to discover words for manifestation.</p>
-                <div class="space-y-4">
-                  @for (category of switchWordsCategories; track category.name; let i = $index) {
-                    <div (click)="selectedSwitchWordCategory.set(category)" class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-left flex items-center justify-between cursor-pointer animate-slideIn" [style.animation-delay]="i * 100 + 'ms'">
-                      <div>
-                        <h2 class="font-serif text-lg text-amber-200">{{ category.name }}</h2>
-                        <p class="text-sm text-slate-400">{{ category.description }}</p>
-                      </div>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-amber-300"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                    </div>
-                  }
-                </div>
-              </div>
-            } @else {
-              <div>
-                <button (click)="resetSwitchWordCategory()" class="mb-4 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-                <h1 class="font-serif text-3xl font-bold mb-1">{{ selectedSwitchWordCategory()?.name }}</h1>
-                <p class="text-slate-400 mb-8">{{ selectedSwitchWordCategory()?.description }}</p>
-                <div class="space-y-3">
-                  @for (word of selectedSwitchWordCategory()?.words; track word.word) {
-                    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-                      <h3 class="font-bold text-lg text-amber-200 uppercase tracking-widest">{{ word.word }}</h3>
-                      <p class="text-slate-300">{{ word.purpose }}</p>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-        @case ('emotions') {
-          <div class="animate-fadeIn">
-            <button (click)="goBack()" class="mb-4 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-            <h1 class="font-serif text-3xl font-bold mb-2">How are you feeling today?</h1>
-            <p class="text-slate-400 mb-8">Select an emotion to receive cosmic guidance.</p>
-            <div class="grid grid-cols-2 gap-4">
-              @for (card of emotionCards; track card.title; let i = $index) {
-                <div (click)="showEmotionGuidance(card)" 
-                    class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 aspect-square flex flex-col justify-center items-center text-center cursor-pointer hover:bg-slate-800 hover:border-amber-400/50 transition-all duration-300 animate-scaleUp"
-                    [style.animation-delay]="i * 75 + 'ms'">
-                  <div class="text-5xl mb-3">{{card.emoji}}</div>
-                  <h3 class="font-serif text-lg text-amber-200">{{card.title}}</h3>
-                </div>
-              }
-            </div>
-          </div>
-        }
-        @case ('emotionGuidance') {
-          <app-emotion-guidance 
-              [goBack]="goBack.bind(this)" 
-              [emotion]="selectedEmotion()"
-              [switchWordCategories]="switchWordsCategories"
-              [navigateToSwitchWords]="navigateToSwitchWordsFromGuidance.bind(this)"
-              />
-        }
-        @case ('more') {
-          <div class="animate-fadeIn">
-            <button (click)="goBack()" class="mb-4 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
-            <h1 class="font-serif text-3xl font-bold mb-6">More Options</h1>
-            <div class="flex flex-col">
-              @for(link of moreLinks; track link) {
-                <button (click)="navigateToMoreLink(link)" class="flex justify-between items-center w-full text-left py-4 border-b border-slate-700 text-slate-300">
-                  <span>{{link}}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-500"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                </button>
-              }
-            </div>
-          </div>
-        }
-        @case ('mantraSoundscape') {
-          <app-mantra-soundscape
-              [goBack]="goBack.bind(this)"
-              [mantraCategories]="mantraCategories"
-              />
-        }
-        @case ('sacredTeachings') {
-          <app-sacred-teachings
-              [goBack]="goBack.bind(this)"
-              [categories]="sacredTeachingsCategories"
-              />
-        }
-        @case ('palmReading') {
-          <app-palm-reading [goBack]="goBack.bind(this)" />
-        }
-        @case ('kundali') {
-          <app-kundali [goBack]="goBack.bind(this)" />
+export interface KundaliReading {
+  lagnaChart: string;
+  kundaliAnalysis: string;
+  palmLeafInsights: string;
+  remedies: string;
+}
+
+export interface EmotionalGuidance {
+  guidance: string;
+  theme: 'Money & Abundance' | 'Health & Healing' | 'Love & Relationships' | 'Success & Career' | 'Peace & Protection';
+}
+
+export interface VideoTakeaways {
+  takeaways: string[];
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GeminiService {
+  private ai: GoogleGenAI | null = null;
+  
+  constructor() {
+
+    const apiKey = process.env.API_KEY;
+    if (apiKey) {
+      this.ai = new GoogleGenAI({ apiKey: apiKey });
+    } else {
+      console.error('API Key not found. Make sure it is set in Vercel environment variables.');
+    }
+  }
+
+  async analyzePalm(base64Image: string, userQuestion?: string): Promise<PalmReading> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const base64Data = base64Image.split(',')[1];
+    const imagePart = {
+      inlineData: { data: base64Data, mimeType: 'image/jpeg' },
+    };
+    
+    let prompt = 'Analyze the provided image of a palm. Identify and interpret the heart line, head line, life line, and fate line. Provide a brief, positive, and insightful astrological reading for each line.';
+
+    if (userQuestion && userQuestion.trim().length > 0) {
+      prompt += `\n\nAdditionally, the user has a specific question: "${userQuestion}". Please address this question in your analysis where relevant.`;
+    }
+
+    const textPart = {
+      text: prompt
+    };
+
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: { parts: [imagePart, textPart] },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            lifeLine: { type: Type.STRING, description: 'Interpretation of the life line.' },
+            heartLine: { type: Type.STRING, description: 'Interpretation of the heart line.' },
+            headLine: { type: Type.STRING, description: 'Interpretation of the head line.' },
+            fateLine: { type: Type.STRING, description: 'Interpretation of the fate line.' },
+          },
+          required: ['lifeLine', 'heartLine', 'headLine', 'fateLine'],
+
         }
       }
-    </main>
+    });
 
-    <footer class="fixed bottom-0 left-0 right-0 z-20 bg-slate-900/50 backdrop-blur-md border-t border-slate-800">
-      <nav class="flex justify-around items-center p-2">
-        @for(item of navItems; track item.id) {
-          <button (click)="navigateTo(item.id)" class="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors" [class.text-amber-300]="page() === item.id" [class.text-slate-400]="page() !== item.id">
-            <div [innerHTML]="item.icon"></div>
-            <span class="text-xs">{{item.label}}</span>
-          </button>
-        }
-      </nav>
-    </footer>
+    const resultText = response.text;
+    return JSON.parse(resultText) as PalmReading;
   }
-</div>
+
+  async generateKundali(name: string, dob: string, tob: string, pob:string): Promise<KundaliReading> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const prompt = `
+      Act as an expert Vedic astrologer from India with deep knowledge of ancient scriptures and the legendary Nadi astrology tradition of Vaideeswaran Koil (palm leaf reading).
+      
+      Generate a personalized Kundali (Vedic birth chart) analysis for the following individual:
+      - Name: ${name}
+      - Date of Birth: ${dob}
+      - Time of Birth: ${tob}
+      - Place of Birth: ${pob}
+
+      Provide a comprehensive and insightful reading structured in four parts. Use a warm, spiritual, and encouraging tone.
+
+      1. **Lagna (Ascendant) Chart Analysis**: Describe the primary characteristics of the Lagna, the positions of key planets in the first house, and how this shapes their core personality, physical attributes, and life's purpose.
+
+      2. **Detailed Kundali Analysis**: Provide a deeper interpretation of the planetary positions across different houses. Cover key life areas such as career and wealth (2nd, 10th, 11th houses), relationships and marriage (7th house), and health and well-being (6th house). Offer guidance on potential challenges and strengths revealed in the chart.
+
+      3. **Legendary Vaideeswaran Koil Palm Leaf Reading (Nadi Astrology)**: Emulate the legendary Nadi astrologers of Vaideeswaran Koil. As if reading from a predestined ancient palm leaf manuscript, provide a complete, accurate, and brief reading that reveals insights into the individual's past, present, and future.
+          - **Past Karmic Imprints**: Briefly touch upon significant karmic patterns or events from past lives that influence the present.
+          - **Present Life Path**: Offer clear insights into their current life situation, challenges, and opportunities.
+          - **Future Glimpse**: Provide a predictive glimpse into key future milestones, 
+
+potential turning points, and ultimate destiny.
+
+      4. **Astrological Remedies**: Based on the analysis, provide a few simple, actionable, and positive Vedic remedies to mitigate challenges and enhance positive planetary influences. This could include chanting specific mantras, recommending a gemstone, performing simple rituals, or suggesting charitable acts.
+
+      The response must be in JSON format.
+    `;
+
+    const textPart = { text: prompt };
+
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: { parts: [textPart] },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            lagnaChart: { type: Type.STRING, description: 'Analysis of the Lagna (Ascendant) chart, personality, and life purpose.' },
+            kundaliAnalysis: { type: Type.STRING, description: 'Detailed interpretation of planetary positions covering career, relationships, and health.' },
+            palmLeafInsights: { type: Type.STRING, description: 'Legendary Vaideeswaran Koil palm leaf reading (Nadi Astrology) with insights into past karmic imprints, present life path, and future glimpses.' },
+            remedies: { type: Type.STRING, description: 'Actionable Vedic remedies to mitigate challenges and enhance positive planetary influences.' },
+          },
+          required: ['lagnaChart', 'kundaliAnalysis', 'palmLeafInsights', 'remedies'],
+        }
+      }
+    });
+
+    const resultText = response.text;
+    return JSON.parse(resultText) as KundaliReading;
+  }
+
+  async getSpiritualGuidance(query: string, language: string): Promise<string> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const prompt = `
+
+      You are a wise and compassionate spiritual guide from India, deeply versed in ancient Hindu wisdom and philosophies.
+      A user is asking you a question in ${language}.
+      User's question: "${query}"
+
+      Please provide a brief, insightful, and comforting response in ${language}.
+      Your tone should be gentle, encouraging, and full of wisdom.
+      Keep the response to 2-3 sentences.
+    `;
+
+    const textPart = { text: prompt };
+
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: { parts: [textPart] },
+    });
+    
+    return response.text;
+  }
+
+  async getEmotionalGuidance(emotion: string): Promise<EmotionalGuidance> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const prompt = `
+      Act as a wise, compassionate, and ancient spiritual guide from India.
+      A user is feeling "${emotion}".
+      
+      Provide a short, comforting, and insightful piece of wisdom or a mantra (1-2 sentences) to help them with this feeling. The tone should be gentle, reassuring, and profound.
+      
+      Also, suggest one of the following themes that is most relevant to the user's feeling:
+      - 'Money & Abundance'
+      - 'Health & Healing'
+      - 'Love & Relationships'
+      - 'Success & Career'
+      - 'Peace & Protection'
+
+      The response must be in JSON format.
+    `;
+
+    const textPart = { text: prompt };
+
+    const response = await this.ai.models.generateContent({
+
+      model: 'gemini-2.5-flash',
+      contents: { parts: [textPart] },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            guidance: { type: Type.STRING, description: 'A short, comforting piece of wisdom or mantra.' },
+            theme: { 
+              type: Type.STRING, 
+              enum: ['Money & Abundance', 'Health & Healing', 'Love & Relationships', 'Success & Career', 'Peace & Protection'],
+              description: 'The most relevant theme for the emotion.' 
+            },
+          },
+          required: ['guidance', 'theme'],
+        }
+      }
+    });
+
+    const resultText = response.text;
+    return JSON.parse(resultText) as EmotionalGuidance;
+  }
+
+  async getMantraInsight(mantraName: string, mantraPurpose: string): Promise<string> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const prompt = `
+      You are a wise and compassionate spiritual guide, well-versed in Vedic traditions.
+      A user is reflecting on the mantra: "${mantraName}".
+      Its purpose is: "${mantraPurpose}".
+
+      Please provide a brief (2-3 sentences), profound, and unique meditation insight or focus point related to this mantra.
+      Your response should be calming, encouraging, and help deepen their spiritual practice.
+      Do not just repeat the meaning; offer a fresh perspective for their meditation.
+    `;
+
+    const textPart = { text:.
+    
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+
+      contents: { parts: [textPart] },
+    });
+
+    return response.text;
+  }
+
+  async getVideoTakeaways(videoTitle: string): Promise<string[]> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+
+    const prompt = `
+      Act as a spiritual guide who summarizes complex topics into simple, profound points.
+      A user has just watched a spiritual video titled: "${videoTitle}".
+
+      Please provide 3 to 5 key spiritual takeaways or life lessons from this video.
+      Present them as a simple list of short, insightful sentences.
+      Focus on the core message and its practical application for personal growth.
+
+      The response must be in JSON format.
+    `;
+
+    const textPart = { text: prompt };
+
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: { parts: [textPart] },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            takeaways: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: 'A list of key spiritual takeaways from the video.'
+            }
+          },
+          required: ['takeaways'],
+        }
+      }
+    });
+
+    const resultText = response.text;
+    const resultJson = JSON.parse(resultText) as VideoTakeaways;
+
+    return resultJson.takeaways;
+  }
+}
