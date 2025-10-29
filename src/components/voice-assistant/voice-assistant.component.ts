@@ -9,6 +9,7 @@ interface Language {
 
 @Component({
   selector: 'app-voice-assistant',
+  standalone: true,
   template: `
 @if (isOpen()) {
   <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm animate-fadeIn" (click)="handleClose()">
