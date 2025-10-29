@@ -235,7 +235,7 @@ potential turning points, and ultimate destiny.
       Do not just repeat the meaning; offer a fresh perspective for their meditation.
     `;
 
-    const textPart = { text:.
+    const textPart = { text: prompt};
     
     const response = await this.ai.models.generateContent({
       model: 'gemini-2.5-flash',
