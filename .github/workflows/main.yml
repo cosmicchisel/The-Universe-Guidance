@@ -1,31 +1,47 @@
 name: Build and Deploy Angular App to GitHub Pages
 
+# Add this permissions block. This is the critical fix.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 on:
   push:
     branches:
-      - main # This means the action runs every time you push to the 'main' branch
+      - main
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # Use a standard virtual machine
-
+    runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3 # Step 1: Get your code from the repository
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3 # Step 2: Install Node.js, which is needed to build the app
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
 
     - name: Install dependencies
-      run: npm install # Step 3: Install all the packages your app needs (like Angular)
+      run: npm install
 
     - name: Build the application
-      run: ng build --configuration production --base-href /The-Universe-Guidance/ # Step 4: Build the "cake"! This creates the final .js files
+      # This command builds the app and puts it in a folder named 'dist/The-Universe-Guidance'
+      run: ng build --configuration production --base-href /The-Universe-Guidance/
+
+    - name: Setup Pages
+      # This step prepares the artifact for deployment
+      uses: actions/configure-pages@v3
+
+    - name: Upload artifact
+      # This step uploads the finished website from the build folder
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: './dist/The-Universe-Guidance'
 
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3 # Step 5: Take the finished app and push it to a special branch for hosting
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist/The-Universe-Guidance # This is the folder where the finished app is located after the build
+      # This step takes the uploaded artifact and deploys it
+      id: deployment
+      uses: actions/deploy-pages@v2
