@@ -3,6 +3,7 @@ import { GeminiService, PalmReading } from '../../services/gemini.service';
 
 @Component({
   selector: 'app-palm-reading',
+  standalone: true,
   template: `
 <div class="animate-fadeIn">
   @switch (palmReadingState()) {
