@@ -3,7 +3,7 @@ import { GeminiService, KundaliReading } from '../../services/gemini.service';
 declare var jsPDF: any;
 @Component({
   selector: 'app-kundali',
-  templateUrl: './kundali.component.html',
+  templateUrl: './kundali.component.ts',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KundaliComponent implements OnDestroy {
