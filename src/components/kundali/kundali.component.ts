@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, signal, inject, input, computed } from '@angular/core';
 import { GeminiService, KundaliReading } from '../../services/gemini.service';
 declare var jsPDF: any;
-@Component({
-  selector: 'app-kundali',
-  templateUrl: './kundali.component.ts',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+import template from './kundali.component.html'; @Component({ selector: 'app-kundali', template: template, changeDetection: ChangeDetectionStrategy.OnPush, })
 })
 export class KundaliComponent implements OnDestroy { 
   goBack = input.required<() => void>();
