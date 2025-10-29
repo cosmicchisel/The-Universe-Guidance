@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-and-deploy:
-    # Add these three lines
+    # This is the "environment block" we are adding
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
