@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal, computed, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { PalmReadingComponent } from './components/palm-reading/palm-reading.component';
-import { KundaliComponent } from './components/kundali/kundali.component.ts';
+import { KundaliComponent } from './components/kundali/kundali.component';
 import { VoiceAssistantComponent } from './components/voice-assistant/voice-assistant.component';
 import { EmotionGuidanceComponent } from './components/emotion-guidance/emotion-guidance.component';
 import { MantraSoundscapeComponent } from './components/mantra-soundscape/mantra-soundscape.component';
@@ -61,8 +61,7 @@ export interface VideoCategory {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [PalmReadingComponent, KundaliComponent, VoiceAssistantComponent, EmotionGuidanceComponent, MantraSoundscapeComponent, SacredTeachingsComponent],
 })
-export class AppComponent implements OnInit {
-  isLoading = signal(true);
+export class AppComponent {
   page = signal<Page>('home');
   history = signal<Page[]>(['home']);
   horoscopeTab = signal<HoroscopeTab>('love');
@@ -201,110 +200,84 @@ export class AppComponent implements OnInit {
     {
       name: 'Peace & Calm',
       description: 'Mantras to soothe the mind and cultivate inner tranquility.',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>`,
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.86 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85v2.72c0 .27.16.59.67.5A10 10 0 0 0 22 12c0-5.523-4.477-10-10-10z"/></svg>`,
       mantras: [
-        { name: 'Om Shanti Om', sanskrit: 'ॐ शान्तिः ॐ', meaning: 'The universal sound, peace, the universal sound.', audioUrl: 'https://cdn.chosic.com/wp-content/uploads/2021/07/OM-Mantra-Chant-For-Meditation.mp3' },
-        { name: 'Lokah Samastah Sukhino Bhavantu', sanskrit: 'लोकाः समस्ताः सुखिनो भवन्तु', meaning: 'May all beings everywhere be happy and free.', audioUrl: 'https://archive.org/download/LokahSamastahSukhinoBhavantu/Lokah%20Samastah%20Sukhino%20Bhavantu.mp3' }
+        { name: 'Om Shanti Om', sanskrit: 'ॐ शान्तिः ॐ', meaning: 'The universal sound, peace, the universal sound.', audioUrl: 'https://cdn.chosic.com/wp-content/uploads/2021/07/OM-Mantra-Chant-For-Meditation.mp3' }
       ]
-    },
-    {
-        name: 'Wealth & Prosperity',
-        description: 'Chants to invoke the energy of abundance and success.',
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-        mantras: [
-          { name: 'Om Gam Ganapataye Namaha', sanskrit: 'ॐ गं गणपतये नमः', meaning: 'Salutations to the remover of obstacles, Lord Ganesha.', audioUrl: 'https://archive.org/download/om-gam-ganapataye-namaha-108-times/Om%20Gam%20Ganapataye%20Namaha%20108%20times.mp3' },
-          { name: 'Om Shreem Mahalakshmyai Namaha', sanskrit: 'ॐ श्रीं महालक्ष्म्यै नमः', meaning: 'Salutations to the great goddess Lakshmi for abundance.', audioUrl: 'https://archive.org/download/om-shreem-mahalakshmyai-namaha/Om%20Shreem%20Mahalakshmyai%20Namaha.mp3' }
-        ]
     }
   ];
 
   sacredTeachingsCategories: VideoCategory[] = [
-    {
-      name: 'Discourses on Dharma',
-      description: 'Profound talks on life, purpose, and righteous living from spiritual masters.',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-      videos: [
-        { title: 'The Bhagavad Gita\'s Guide to a Happy Life', speaker: 'Gaur Gopal Das', youtubeId: '2L6p-T_y5DA' },
-        { title: 'The Nature of Your Existence', speaker: 'Sadhguru', youtubeId: '3s_qgGib8gE' },
-        { title: 'How To Find Your Purpose', speaker: 'Dandapani', youtubeId: 'Tce_d_3j-eQ' },
-      ]
-    },
-    {
-      name: 'Guided Meditations',
-      description: 'Journey inward with guided sessions for peace, clarity, and self-discovery.',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>`,
-      videos: [
-        { title: '10-Minute Meditation For Anxiety', speaker: 'Goodful', youtubeId: 'O-6f5wQXSu8' },
-        { title: 'Meditation for Positive Energy', speaker: 'Great Meditation', youtubeId: 'inpok4MKVLM' },
-        { title: 'Morning Meditation for Gratitude', speaker: 'The Mindful Movement', youtubeId: 'zSkFFW--Ma0' },
-      ]
-    }
+      {
+        name: 'Discourses by Gurus',
+        description: 'Listen to the timeless wisdom of spiritual masters.',
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+        videos: [
+          { title: 'The Nature of Reality', speaker: 'Sadhguru', youtubeId: 'SQfx1O5i34A' },
+          { title: 'Finding Your Purpose', speaker: 'Gaur Gopal Das', youtubeId: '169s_bEuTIQ' },
+        ]
+      }
   ];
 
-  ngOnInit(): void {
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 2500);
-  }
+  // --- Methods ---
 
-  navigateTo(page: Page): void {
+  navigateTo(page: Page) {
     if (page === this.page()) return;
     this.history.update(h => [...h, page]);
     this.page.set(page);
     window.scrollTo(0, 0);
   }
 
-  goBack(): void {
-    if (this.history().length > 1) {
-      this.history.update(h => {
+  goBack() {
+    this.history.update(h => {
+      if (h.length > 1) {
         h.pop();
-        const prevPage = h[h.length - 1];
-        this.page.set(prevPage);
-        if (prevPage === 'switchWords') {
-            this.selectedSwitchWordCategory.set(null);
-        }
-        return h;
-      });
-    }
+        this.page.set(h[h.length - 1]);
+      }
+      return [...h];
+    });
   }
 
-  prevMonth(): void {
-    this.currentDate.update(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  prevMonth() {
+    this.currentDate.update(d => {
+      const newDate = new Date(d);
+      newDate.setMonth(newDate.getMonth() - 1);
+      return newDate;
+    });
   }
 
-  nextMonth(): void {
-    this.currentDate.update(d => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  nextMonth() {
+    this.currentDate.update(d => {
+      const newDate = new Date(d);
+      newDate.setMonth(newDate.getMonth() + 1);
+      return newDate;
+    });
   }
 
-  resetSwitchWordCategory(): void {
+  resetSwitchWordCategory() {
     this.selectedSwitchWordCategory.set(null);
   }
-  
-  showEmotionGuidance(card: EmotionCard): void {
+
+  showEmotionGuidance(card: EmotionCard) {
     this.selectedEmotion.set(card);
     this.navigateTo('emotionGuidance');
   }
-  
-  navigateToSwitchWordsFromGuidance(category: SwitchWordCategory): void {
+
+  navigateToSwitchWordsFromGuidance(category: SwitchWordCategory) {
     this.selectedSwitchWordCategory.set(category);
     this.navigateTo('switchWords');
   }
 
-  navigateToMoreLink(link: string): void {
+  navigateToMoreLink(link: string) {
     if (link === 'Mantras') {
       this.navigateTo('mantraSoundscape');
     } else if (link === 'Youtube Videos') {
       this.navigateTo('sacredTeachings');
-    } else if (link === 'Share with Friends') {
-      if (navigator.share) {
-        navigator.share({
-          title: 'THE UNIVERSE GUIDANCE',
-          text: 'Check out this amazing spiritual guidance app! Blending ancient wisdom with modern design.',
-          url: window.location.href,
-        }).catch(console.error);
-      } else {
-        alert('Share feature is not supported in your browser.');
-      }
     }
+    // Other links can be handled here
   }
+  
+  // Pre-bound functions for child component inputs
+  goBackFn = this.goBack.bind(this);
+  navigateToSwitchWordsFromGuidanceFn = this.navigateToSwitchWordsFromGuidance.bind(this);
 }
