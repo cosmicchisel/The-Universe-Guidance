@@ -31,6 +31,12 @@ export interface VideoTakeaways {
   takeaways: string[];
 }
 
+export interface DreamInterpretation {
+  mainThemes: string;
+  symbolism: string;
+  guidance: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,7 +44,6 @@ export class GeminiService {
   private ai: GoogleGenAI | null = null;
   
   constructor() {
-
     const apiKey = process.env.API_KEY;
     if (apiKey) {
       this.ai = new GoogleGenAI({ apiKey: apiKey });
@@ -81,7 +86,6 @@ export class GeminiService {
             fateLine: { type: Type.STRING, description: 'Interpretation of the fate line.' },
           },
           required: ['lifeLine', 'heartLine', 'headLine', 'fateLine'],
-
         }
       }
     });
@@ -106,18 +110,16 @@ export class GeminiService {
 
       Provide a comprehensive and insightful reading structured in four parts. Use a warm, spiritual, and encouraging tone.
 
-      1. **Lagna (Ascendant) Chart Analysis**: Describe the primary characteristics of the Lagna, the positions of key planets in the first house, and how this shapes their core personality, physical attributes, and life's purpose.
+      1.  **Lagna (Ascendant) Chart Analysis**: Describe the primary characteristics of the Lagna, the positions of key planets in the first house, and how this shapes their core personality, physical attributes, and life's purpose.
 
-      2. **Detailed Kundali Analysis**: Provide a deeper interpretation of the planetary positions across different houses. Cover key life areas such as career and wealth (2nd, 10th, 11th houses), relationships and marriage (7th house), and health and well-being (6th house). Offer guidance on potential challenges and strengths revealed in the chart.
+      2.  **Detailed Kundali Analysis**: Provide a deeper interpretation of the planetary positions across different houses. Cover key life areas such as career and wealth (2nd, 10th, 11th houses), relationships and marriage (7th house), and health and well-being (6th house). Offer guidance on potential challenges and strengths revealed in the chart.
 
-      3. **Legendary Vaideeswaran Koil Palm Leaf Reading (Nadi Astrology)**: Emulate the legendary Nadi astrologers of Vaideeswaran Koil. As if reading from a predestined ancient palm leaf manuscript, provide a complete, accurate, and brief reading that reveals insights into the individual's past, present, and future.
+      3.  **Legendary Vaideeswaran Koil Palm Leaf Reading (Nadi Astrology)**: Emulate the legendary Nadi astrologers of Vaideeswaran Koil. As if reading from a predestined ancient palm leaf manuscript, provide a complete, accurate, and brief reading that reveals insights into the individual's past, present, and future.
           - **Past Karmic Imprints**: Briefly touch upon significant karmic patterns or events from past lives that influence the present.
           - **Present Life Path**: Offer clear insights into their current life situation, challenges, and opportunities.
-          - **Future Glimpse**: Provide a predictive glimpse into key future milestones, 
+          - **Future Glimpse**: Provide a predictive glimpse into key future milestones, potential turning points, and ultimate destiny.
 
-potential turning points, and ultimate destiny.
-
-      4. **Astrological Remedies**: Based on the analysis, provide a few simple, actionable, and positive Vedic remedies to mitigate challenges and enhance positive planetary influences. This could include chanting specific mantras, recommending a gemstone, performing simple rituals, or suggesting charitable acts.
+      4.  **Astrological Remedies**: Based on the analysis, provide a few simple, actionable, and positive Vedic remedies to mitigate challenges and enhance positive planetary influences. This could include chanting specific mantras, recommending a gemstone, performing simple rituals, or suggesting charitable acts.
 
       The response must be in JSON format.
     `;
@@ -152,7 +154,6 @@ potential turning points, and ultimate destiny.
     }
 
     const prompt = `
-
       You are a wise and compassionate spiritual guide from India, deeply versed in ancient Hindu wisdom and philosophies.
       A user is asking you a question in ${language}.
       User's question: "${query}"
@@ -196,7 +197,6 @@ potential turning points, and ultimate destiny.
     const textPart = { text: prompt };
 
     const response = await this.ai.models.generateContent({
-
       model: 'gemini-2.5-flash',
       contents: { parts: [textPart] },
       config: {
@@ -235,11 +235,10 @@ potential turning points, and ultimate destiny.
       Do not just repeat the meaning; offer a fresh perspective for their meditation.
     `;
 
-    const textPart = { text: prompt};
-    
+    const textPart = { text: prompt };
+
     const response = await this.ai.models.generateContent({
       model: 'gemini-2.5-flash',
-
       contents: { parts: [textPart] },
     });
 
@@ -285,7 +284,47 @@ potential turning points, and ultimate destiny.
 
     const resultText = response.text;
     const resultJson = JSON.parse(resultText) as VideoTakeaways;
-
     return resultJson.takeaways;
+  }
+
+  async interpretDream(dreamDescription: string): Promise<DreamInterpretation> {
+    if (!this.ai) {
+      throw new Error('Gemini AI client is not initialized.');
+    }
+  
+    const prompt = `
+      Act as a wise, insightful spiritual dream interpreter with deep knowledge of ancient symbolism and Jungian psychology, viewed through a spiritual lens.
+      A user has described their dream: "${dreamDescription}".
+
+      Provide a gentle, encouraging, and profound interpretation of their dream. Structure your response into three distinct parts:
+      
+      1.  **Main Themes**: A brief summary of the core emotional and thematic elements of the dream. What is the overarching feeling or message?
+      2.  **Symbolism Explained**: Analyze the key symbols (objects, people, places, animals, actions) from the dream. Explain their potential spiritual and psychological meanings in the context of the dream.
+      3.  **Cosmic Guidance**: Offer a point of reflection or actionable advice based on the dream's message. How can the user integrate this insight into their waking life for personal growth and spiritual alignment?
+
+      The response must be in JSON format.
+    `;
+  
+    const textPart = { text: prompt };
+  
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: { parts: [textPart] },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            mainThemes: { type: Type.STRING, description: "A summary of the dream's core emotional and thematic elements." },
+            symbolism: { type: Type.STRING, description: "An analysis of key symbols and their potential spiritual meanings." },
+            guidance: { type: Type.STRING, description: "Actionable advice or a point of reflection based on the dream's message." },
+          },
+          required: ['mainThemes', 'symbolism', 'guidance'],
+        }
+      }
+    });
+  
+    const resultText = response.text;
+    return JSON.parse(resultText) as DreamInterpretation;
   }
 }
