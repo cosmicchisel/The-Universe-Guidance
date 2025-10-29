@@ -56,6 +56,7 @@ export interface VideoCategory {
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   template: `
 <div class="min-h-screen bg-gradient-to-b from-[#131128] to-[#242142] text-slate-200 overflow-x-hidden">
   <app-voice-assistant [isOpen]="isVoiceAssistantOpen()" (close)="isVoiceAssistantOpen.set(false)"></app-voice-assistant>
