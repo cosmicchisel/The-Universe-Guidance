@@ -1,12 +1,9 @@
-const CACHE_NAME = 'universe-guidance-v7';
+const CACHE_NAME = 'universe-guidance-v1';
 const URLS_TO_CACHE = [
   './',
-  './index.html',
-  './main.js',
-  './manifest.webmanifest',
-  './favicon.svg',
-  './assets/icons/icon-192.svg',
-  './assets/icons/icon-512.svg'
+  'index.html',
+  'main.js',
+  'manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
@@ -17,7 +14,6 @@ self.addEventListener('install', (event) => {
         return cache.addAll(URLS_TO_CACHE);
       })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -65,6 +61,6 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
 });
