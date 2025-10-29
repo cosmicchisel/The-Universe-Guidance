@@ -1,0 +1,31 @@
+name: Build and Deploy Angular App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # This means the action runs every time you push to the 'main' branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Use a standard virtual machine
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 # Step 1: Get your code from the repository
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3 # Step 2: Install Node.js, which is needed to build the app
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install # Step 3: Install all the packages your app needs (like Angular)
+
+    - name: Build the application
+      run: ng build --configuration production --base-href /The-Universe-Guidance/ # Step 4: Build the "cake"! This creates the final .js files
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3 # Step 5: Take the finished app and push it to a special branch for hosting
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist/The-Universe-Guidance # This is the folder where the finished app is located after the build
