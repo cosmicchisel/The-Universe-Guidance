@@ -5,8 +5,9 @@ import { VoiceAssistantComponent } from './components/voice-assistant/voice-assi
 import { EmotionGuidanceComponent } from './components/emotion-guidance/emotion-guidance.component';
 import { MantraSoundscapeComponent } from './components/mantra-soundscape/mantra-soundscape.component';
 import { SacredTeachingsComponent } from './components/sacred-teachings/sacred-teachings.component';
+import { DreamInterpreterComponent } from './components/dream-interpreter/dream-interpreter.component';
 
-export type Page = 'home' | 'dailyHoroscope' | 'calendar' | 'emotions' | 'more' | 'switchWords' | 'palmReading' | 'kundali' | 'emotionGuidance' | 'mantraSoundscape' | 'sacredTeachings';
+export type Page = 'home' | 'dailyHoroscope' | 'calendar' | 'emotions' | 'more' | 'switchWords' | 'palmReading' | 'kundali' | 'emotionGuidance' | 'mantraSoundscape' | 'sacredTeachings' | 'dreamInterpreter';
 export type HoroscopeTab = 'love' | 'career' | 'health';
 
 export interface ZodiacSign {
@@ -18,7 +19,7 @@ export interface EmotionCard {
   emoji: string;
 }
 export interface NavItem {
-  id: Exclude<Page, 'dailyHoroscope' | 'palmReading' | 'kundali' | 'emotionGuidance' | 'mantraSoundscape' | 'sacredTeachings'>;
+  id: Exclude<Page, 'dailyHoroscope' | 'palmReading' | 'kundali' | 'emotionGuidance' | 'mantraSoundscape' | 'sacredTeachings' | 'dreamInterpreter'>;
   label: string;
 }
 export interface SwitchWord {
@@ -91,6 +92,16 @@ export interface VideoCategory {
               <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/><path d="M12 12 8 22"/><path d="m12 12 10-4"/><path d="M12 12 2 8"/></svg>
               <h3 class="font-serif text-lg mt-3 text-amber-200">Kundali Chart</h3>
               <p class="text-xs text-slate-400 mt-1">Vedic birth chart analysis.</p>
+            </div>
+             <div (click)="navigateTo('dreamInterpreter')" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors animate-scaleUp" style="animation-delay: 300ms;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="m15.7 3.4-1.4 1.4"/></svg>
+              <h3 class="font-serif text-lg mt-3 text-amber-200">Dream Interpreter</h3>
+              <p class="text-xs text-slate-400 mt-1">Find meaning in your dreams.</p>
+            </div>
+             <div (click)="navigateTo('mantraSoundscape')" class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors animate-scaleUp" style="animation-delay: 400ms;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.86 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85v2.72c0 .27.16.59.67.5A10 10 0 0 0 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              <h3 class="font-serif text-lg mt-3 text-amber-200">Mantra Soundscape</h3>
+              <p class="text-xs text-slate-400 mt-1">Chant & meditate.</p>
             </div>
           </div>
 
@@ -226,6 +237,9 @@ export interface VideoCategory {
       @case ('kundali') {
         <app-kundali [goBack]="goBackFn" />
       }
+      @case ('dreamInterpreter') {
+        <app-dream-interpreter [goBack]="goBackFn" />
+      }
     }
   </main>
 
@@ -258,7 +272,7 @@ export interface VideoCategory {
 </div>
 `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PalmReadingComponent, KundaliComponent, VoiceAssistantComponent, EmotionGuidanceComponent, MantraSoundscapeComponent, SacredTeachingsComponent],
+  imports: [PalmReadingComponent, KundaliComponent, VoiceAssistantComponent, EmotionGuidanceComponent, MantraSoundscapeComponent, SacredTeachingsComponent, DreamInterpreterComponent],
 })
 export class AppComponent {
   page = signal<Page>('home');
@@ -332,7 +346,7 @@ export class AppComponent {
     { title: 'Confused', emoji: '🤔' },
   ];
   
-  moreLinks = ['Mantras', 'Youtube Videos', 'Share with Friends', 'Rate App', 'Privacy Policy'];
+  moreLinks = ['Youtube Videos', 'Share with Friends', 'Rate App', 'Privacy Policy'];
 
   navItems: NavItem[] = [
     { id: 'home', label: 'Home' },
@@ -466,9 +480,7 @@ export class AppComponent {
   }
 
   navigateToMoreLink(link: string) {
-    if (link === 'Mantras') {
-      this.navigateTo('mantraSoundscape');
-    } else if (link === 'Youtube Videos') {
+    if (link === 'Youtube Videos') {
       this.navigateTo('sacredTeachings');
     }
     // Other links can be handled here
