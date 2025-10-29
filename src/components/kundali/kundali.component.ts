@@ -6,7 +6,7 @@ declare var jsPDF: any;
   templateUrl: './kundali.component.ts',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KundaliComponent implements OnDestroy {
+export class KundaliComponent implements OnDestroy { 
   goBack = input.required<() => void>();
   private geminiService = inject(GeminiService);
   // Component State
