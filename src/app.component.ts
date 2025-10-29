@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal, computed, OnInit } from '@angular/core';
 import { PalmReadingComponent } from './components/palm-reading/palm-reading.component';
-import { KundaliComponent } from './components/kundali/kundali.component';
+import { KundaliComponent } from './components/kundali/kundali.component.ts';
 import { VoiceAssistantComponent } from './components/voice-assistant/voice-assistant.component';
 import { EmotionGuidanceComponent } from './components/emotion-guidance/emotion-guidance.component';
 import { MantraSoundscapeComponent } from './components/mantra-soundscape/mantra-soundscape.component';
