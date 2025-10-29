@@ -260,7 +260,6 @@ export interface VideoCategory {
 `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [PalmReadingComponent, KundaliComponent, VoiceAssistantComponent, EmotionGuidanceComponent, MantraSoundscapeComponent, SacredTeachingsComponent],
-  providers: [GeminiService, VoiceAssistantService],
 })
 export class AppComponent {
   page = signal<Page>('home');
@@ -402,7 +401,7 @@ export class AppComponent {
       name: 'Peace & Calm',
       description: 'Mantras to soothe the mind and cultivate inner tranquility.',
       mantras: [
-        { name: 'Om Shanti Om', sanskrit: 'ॐ शान्तिः ॐ', meaning: 'The universal sound, peace, the universal sound.', audioUrl: 'https://cdn.chosic.com/wp-content/uploads/2021/07/OM-Mantra-Chant-For-Meditation.mp3' }
+        { name: 'Om Shanti Om', sanskrit: 'ॐ शान्तिः ॐ', meaning: 'The universal sound, peace, the universal sound.', audioUrl: 'https://cdn.chosic.com/wp-content/uploads/2021/7/OM-Mantra-Chant-For-Meditation.mp3' }
       ]
     }
   ];
