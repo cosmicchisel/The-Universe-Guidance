@@ -6,6 +6,7 @@ declare var html2canvas: any;
 
 @Component({
   selector: 'app-emotion-guidance',
+  standalone: true,
   template: `
 <div class="animate-fadeIn">
   <button (click)="goBack()" class="mb-4 text-slate-300">
