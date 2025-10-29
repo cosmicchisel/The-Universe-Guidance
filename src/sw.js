@@ -1,4 +1,4 @@
-const CACHE_NAME = 'universe-guidance-v2';
+const CACHE_NAME = 'universe-guidance-v3';
 const URLS_TO_CACHE = [
   './',
   './index.html',
