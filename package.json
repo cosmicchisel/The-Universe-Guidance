@@ -3,4 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p public/assets/icons && cp index.html metadata.json manifest.webmanifest favicon.svg public/ && cp assets/icons/*.svg public/assets/icons/ && cp sw.js public/ && esbuild main.ts --bundle --outfile=public/main.js --format=esm --platform=browser --tsconfig=tsconfig.json --external:@angular/* --external:rxjs --external:rxjs/* --external:@google/genai --define:process.env.API_KEY='\"'$API_KEY'\"'"
+    "build": "mkdir -p public/assets/icons && cp index.html metadata.json manifest.webmanifest favicon.svg public/ && cp assets/icons/*.svg public/assets/icons/ && cp sw.js public/ && esbuild main.ts --bundle --outfile=public/main.js --format=esm --platform=browser --tsconfig=tsconfig.json --external:@angular/* --external:rxjs --external:rxjs/* --external:@google/genai"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "typescript": "^5.4.5"
+  }
+}```
