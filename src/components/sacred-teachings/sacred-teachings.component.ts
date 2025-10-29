@@ -13,7 +13,8 @@ export class SacredTeachingsComponent {
   categories = input.required<VideoCategory[]>();
 
   private geminiService = inject(GeminiService);
-  private sanitizer = inject(DomSanitizer);
+  // FIX: Added explicit type to 'sanitizer' property to resolve an issue where its type was being inferred as 'unknown'.
+  private sanitizer: DomSanitizer = inject(DomSanitizer);
 
   selectedCategory = signal<VideoCategory | null>(null);
   selectedVideo = signal<Video | null>(null);
@@ -23,11 +24,10 @@ export class SacredTeachingsComponent {
   takeawaysError = signal<string | null>(null);
 
   // Computed property for the YouTube embed URL
-  videoUrl = computed(() => {
+  videoUrl = computed<SafeResourceUrl | string>(() => {
     const videoId = this.selectedVideo()?.youtubeId;
     if (videoId) {
       const url = `https://www.youtube.com/embed/${videoId}`;
-      // Sanitize the URL to prevent XSS attacks
       return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
     return '';
