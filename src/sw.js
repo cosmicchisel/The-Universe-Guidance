@@ -1,4 +1,4 @@
-const CACHE_NAME = 'universe-guidance-v3';
+const CACHE_NAME = 'universe-guidance-v5';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ self.addEventListener('install', (event) => {
         return cache.addAll(URLS_TO_CACHE);
       })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -64,6 +65,6 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
