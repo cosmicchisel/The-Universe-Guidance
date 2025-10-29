@@ -5,6 +5,7 @@ declare var jsPDF: any;
 
 @Component({
   selector: 'app-kundali',
+  standalone: true,
   template: `
 <div class="animate-fadeIn">
   @switch (state()) {
