@@ -72,7 +72,7 @@ amber-400 focus:border-amber-400 transition-all duration-300 appearance-none">
             </div>
           </div>
         } @else { 
-        if(error(); as err) {
+        @if(error(); as err) {
           <div class="bg-red-900/50 border border-red-700 rounded-xl p-4 text-center">
             <h3 class="font-bold text-lg text-red-200 mb-2">Analysis Failed</h3>
             <p class="text-red-300">{{ err }}</p>
