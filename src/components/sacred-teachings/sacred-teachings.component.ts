@@ -104,7 +104,6 @@ export class SacredTeachingsComponent {
   categories = input.required<VideoCategory[]>();
 
   private geminiService = inject(GeminiService);
-  // FIX: Added explicit type to 'sanitizer' property to resolve an issue where its type was being inferred as 'unknown'.
   private sanitizer: DomSanitizer = inject(DomSanitizer);
 
   selectedCategory = signal<VideoCategory | null>(null);
