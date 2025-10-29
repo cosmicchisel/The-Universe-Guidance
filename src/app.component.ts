@@ -5,8 +5,6 @@ import { VoiceAssistantComponent } from './components/voice-assistant/voice-assi
 import { EmotionGuidanceComponent } from './components/emotion-guidance/emotion-guidance.component';
 import { MantraSoundscapeComponent } from './components/mantra-soundscape/mantra-soundscape.component';
 import { SacredTeachingsComponent } from './components/sacred-teachings/sacred-teachings.component';
-import { GeminiService } from './services/gemini.service';
-import { VoiceAssistantService } from './services/voice-assistant.service';
 
 export type Page = 'home' | 'dailyHoroscope' | 'calendar' | 'emotions' | 'more' | 'switchWords' | 'palmReading' | 'kundali' | 'emotionGuidance' | 'mantraSoundscape' | 'sacredTeachings';
 export type HoroscopeTab = 'love' | 'career' | 'health';
