@@ -1,6 +1,5 @@
 name: Build and Deploy Angular App to GitHub Pages
 
-# Add this permissions block. This is the critical fix.
 permissions:
   contents: read
   pages: write
@@ -17,10 +16,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4 # Updated to v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4 # Updated to v4
       with:
         node-version: '18'
 
@@ -28,20 +27,16 @@ jobs:
       run: npm install
 
     - name: Build the application
-      # This command builds the app and puts it in a folder named 'dist/The-Universe-Guidance'
       run: ng build --configuration production --base-href /The-Universe-Guidance/
 
     - name: Setup Pages
-      # This step prepares the artifact for deployment
-      uses: actions/configure-pages@v3
+      uses: actions/configure-pages@v5 # Updated to v5
 
     - name: Upload artifact
-      # This step uploads the finished website from the build folder
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3 # Updated to v3
       with:
         path: './dist/The-Universe-Guidance'
 
     - name: Deploy to GitHub Pages
-      # This step takes the uploaded artifact and deploys it
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4 # Updated to v4
