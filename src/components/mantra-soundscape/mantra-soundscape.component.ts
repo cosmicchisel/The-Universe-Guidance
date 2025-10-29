@@ -1,182 +1,170 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy, signal } from '@angular/core';
-import { GeminiService } from '../../services/gemini.service';
-import { Mantra, MantraCategory } from '../../app.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
+import { GeminiService, EmotionalGuidance } from '../../services/gemini.service';
+import { EmotionCard, SwitchWordCategory } from '../../app.component';
+
+declare var html2canvas: any;
 
 @Component({
-  selector: 'app-mantra-soundscape',
+  selector: 'app-emotion-guidance',
+  standalone: true,
   template: `
 <div class="animate-fadeIn">
-  <button (click)="handleGoBack()" class="mb-4 text-slate-300">
+  <button (click)="goBack()" class="mb-4 text-slate-300">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
   </button>
   
-  @if (!selectedCategory()) {
-    <!-- Category List View -->
-    <div>
-      <h1 class="font-serif text-3xl font-bold mb-2">Mantra Soundscape</h1>
-      <p class="text-slate-400 mb-8">Choose a category to begin your practice.</p>
-      <div class="space-y-4">
-        @for (category of mantraCategories(); track category.name; let i = $index) {
-          <div (click)="selectCategory(category)" 
-               class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex items-center gap-5 cursor-pointer hover:bg-slate-800 hover:border-amber-400/50 transition-all duration-300 animate-slideIn"
-               [style.animation-delay]="i * 100 + 'ms'">
-            <div class="text-amber-300">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.86 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85v2.72c0 .27.16.59.67.5A10 10 0 0 0 22 12c0-5.523-4.477-10-10-10z"/></svg>
-            </div>
-            <div>
-              <h2 class="font-serif text-lg text-amber-200">{{ category.name }}</h2>
-              <p class="text-sm text-slate-400">{{ category.description }}</p>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  } @else if (selectedCategory(); as category) {
-    @if (!selectedMantra()) {
-      <!-- Mantra List View -->
-      <div>
-        <h1 class="font-serif text-3xl font-bold mb-1">{{ category.name }}</h1>
-        <p class="text-slate-400 mb-8">{{ category.description }}</p>
-        <div class="flex flex-col">
-          @for (mantra of category.mantras; track mantra.name) {
-            <button (click)="selectMantra(mantra)" class="text-left w-full flex justify-between items-center py-4 border-b border-slate-700 text-slate-300">
-              <span>{{ mantra.name }}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-500"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-            </button>
-          }
+  @switch (state()) {
+    @case ('loading') {
+      <div class="flex flex-col items-center justify-center h-[70vh] text-center">
+        <div class="relative w-32 h-32 flex items-center justify-center">
+          <div class="absolute inset-0 bg-amber-400/20 rounded-full animate-ping"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
         </div>
+        <p class="mt-8 text-lg text-slate-300 transition-opacity duration-500 animate-fadeIn">{{ currentLoadingMessage() }}</p>
       </div>
-    } @else {
-      <!-- Mantra Detail View -->
-      @if (selectedMantra(); as mantra) {
-        <div>
-          <h1 class="font-serif text-3xl font-bold mb-1">{{ mantra.name }}</h1>
-          <p class="text-slate-400 mb-6 italic">"{{ mantra.meaning }}"</p>
-          
-          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 flex flex-col items-center gap-6">
-            <p class="text-2xl text-amber-200/90 tracking-wider">{{ mantra.sanskrit }}</p>
-            <button (click)="toggleAudio()" class="w-16 h-16 bg-amber-400 text-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-amber-900/50">
-              @if (isPlaying()) {
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              } @else {
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              }
-            </button>
+    }
+    @case ('result') {
+      @if (guidance(); as g) {
+        <div class="flex flex-col gap-8">
+          <div id="guidance-card" class="bg-gradient-to-br from-[#242142] to-[#131128] border border-slate-700 rounded-2xl p-6 text-center shadow-2xl shadow-black/50">
+            <p class="text-sm text-amber-300/80 mb-2">For when you are feeling</p>
+            <h1 class="font-serif text-3xl font-bold mb-6 text-amber-200">{{ emotion()?.title }}</h1>
+            <p class="text-slate-200 text-lg leading-relaxed font-serif italic">"{{ g.guidance }}"</p>
           </div>
-          
-          <div class="mt-8">
-            <button (click)="fetchMantraInsight()" [disabled]="isLoadingInsight()" class="w-full px-6 py-3 bg-amber-400/20 text-amber-200 rounded-full border border-amber-400/50 disabled:opacity-50">
-              @if (isLoadingInsight()) {
-                <span>Consulting the cosmos...</span>
-              } @else {
-                <span>Seek Deeper Insight</span>
-              }
-            </button>
-          </div>
-          
-          @if (geminiInsight()) {
-            <div class="mt-6 bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-400/30 rounded-xl p-5 animate-fadeIn">
-              <h3 class="font-serif font-bold text-lg text-amber-200 mb-2">Meditation Focus</h3>
-              <p class="text-slate-300 leading-relaxed italic">"{{ geminiInsight() }}"</p>
+
+          @if (suggestedCategory(); as category) {
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-center animate-slideIn" style="animation-delay: 100ms;">
+              <h3 class="font-serif text-lg text-amber-200 mb-2">Suggested Switch Word Category</h3>
+              <p class="text-slate-400 mb-4">To amplify this energy, explore words from the "{{ category.name }}" collection.</p>
+              <button (click)="handleGoToSwitchWords()" class="px-5 py-2 bg-amber-400/20 text-amber-200 rounded-full border border-amber-400/50 text-sm">
+                Explore Now
+              </button>
             </div>
           }
-          @if (insightError()) {
-             <div class="mt-6 p-4 bg-red-900/50 border border-red-700 rounded-lg animate-fadeIn text-center">
-              <p class="text-red-300">{{ insightError() }}</p>
-            </div>
-          }
+          
+          <div class="flex gap-4">
+              <button (click)="shareGuidance()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-700/60 text-slate-300 font-semibold rounded-full hover:bg-slate-700 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                Share
+              </button>
+              <button (click)="downloadGuidanceImage()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-700/60 text-slate-300 font-semibold rounded-full hover:bg-slate-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download
+              </button>
+          </div>
 
         </div>
       }
+    }
+    @case ('error') {
+        <div class="bg-red-900/50 border border-red-700 rounded-xl p-5 text-center">
+            <h3 class="font-bold text-lg text-red-200 mb-2">Oh, dear...</h3>
+            <p class="text-red-300">{{ error() }}</p>
+        </div>
     }
   }
 </div>
 `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MantraSoundscapeComponent implements OnDestroy {
+export class EmotionGuidanceComponent implements OnInit, OnDestroy {
   goBack = input.required<() => void>();
-  mantraCategories = input.required<MantraCategory[]>();
+  emotion = input.required<EmotionCard | null>();
+  switchWordCategories = input.required<SwitchWordCategory[]>();
+  navigateToSwitchWords = input.required<(category: SwitchWordCategory) => void>();
 
   private geminiService = inject(GeminiService);
 
-  selectedCategory = signal<MantraCategory | null>(null);
-  selectedMantra = signal<Mantra | null>(null);
-  
-  // AI Insight State
-  geminiInsight = signal<string | null>(null);
-  isLoadingInsight = signal(false);
-  insightError = signal<string | null>(null);
+  state = signal<'loading' | 'result' | 'error'>('loading');
+  guidance = signal<EmotionalGuidance | null>(null);
+  error = signal<string | null>(null);
 
-  // Audio Player State
-  private audioPlayer = new Audio();
-  isPlaying = signal(false);
-  
-  constructor() {
-    this.audioPlayer.addEventListener('ended', () => this.isPlaying.set(false));
-    this.audioPlayer.addEventListener('pause', () => this.isPlaying.set(false));
-    this.audioPlayer.addEventListener('play', () => this.isPlaying.set(true));
+  suggestedCategory = computed(() => {
+    const theme = this.guidance()?.theme;
+    if (!theme) return null;
+    return this.switchWordCategories().find(c => c.name === theme) ?? null;
+  });
+
+  loadingMessages = ['Connecting with your inner self...', 'Listening to the whispers of the cosmos...', 'Translating celestial wisdom...'];
+  currentLoadingMessage = signal(this.loadingMessages[0]);
+  private loadingInterval?: ReturnType<typeof setInterval>;
+
+  ngOnInit(): void {
+    this.fetchGuidance();
+    this.startLoadingAnimation();
   }
 
   ngOnDestroy(): void {
-    this.audioPlayer.pause();
-    this.audioPlayer.src = '';
-  }
-
-  handleGoBack(): void {
-    if (this.selectedMantra()) {
-      this.selectMantra(null); // Go from mantra detail to mantra list
-    } else if (this.selectedCategory()) {
-      this.selectCategory(null); // Go from mantra list to category list
-    } else {
-      this.goBack(); // Go back to previous page
+    if (this.loadingInterval) {
+      clearInterval(this.loadingInterval);
     }
   }
 
-  selectCategory(category: MantraCategory | null): void {
-    this.selectedCategory.set(category);
-  }
-
-  selectMantra(mantra: Mantra | null): void {
-    // Stop any currently playing audio when selection changes
-    if (this.isPlaying()) {
-      this.audioPlayer.pause();
+  async fetchGuidance(): Promise<void> {
+    const currentEmotion = this.emotion();
+    if (!currentEmotion) {
+      this.error.set('No emotion selected.');
+      this.state.set('error');
+      return;
     }
-    this.isPlaying.set(false);
-    this.geminiInsight.set(null);
-    this.insightError.set(null);
-    
-    this.selectedMantra.set(mantra);
-    
-    if (mantra) {
-      this.audioPlayer.src = mantra.audioUrl;
-    }
-  }
-
-  toggleAudio(): void {
-    if (this.isPlaying()) {
-      this.audioPlayer.pause();
-    } else {
-      this.audioPlayer.play().catch(e => console.error("Audio playback error:", e));
-    }
-  }
-
-  async fetchMantraInsight(): Promise<void> {
-    const mantra = this.selectedMantra();
-    if (!mantra) return;
-
-    this.isLoadingInsight.set(true);
-    this.geminiInsight.set(null);
-    this.insightError.set(null);
 
     try {
-      const insight = await this.geminiService.getMantraInsight(mantra.name, mantra.meaning);
-      this.geminiInsight.set(insight);
+      const result = await this.geminiService.getEmotionalGuidance(currentEmotion.title);
+      this.guidance.set(result);
+      this.state.set('result');
     } catch (e) {
       console.error(e);
-      this.insightError.set('A moment of silence... The cosmos is not responding. Please try again.');
+      this.error.set('The cosmos is quiet right now. Please try again later.');
+      this.state.set('error');
     } finally {
-      this.isLoadingInsight.set(false);
+      if (this.loadingInterval) {
+        clearInterval(this.loadingInterval);
+      }
+    }
+  }
+
+  startLoadingAnimation(): void {
+    if (this.loadingInterval) clearInterval(this.loadingInterval);
+    let index = 0;
+    this.currentLoadingMessage.set(this.loadingMessages[index]);
+    this.loadingInterval = setInterval(() => {
+      index = (index + 1) % this.loadingMessages.length;
+      this.currentLoadingMessage.set(this.loadingMessages[index]);
+    }, 2500);
+  }
+
+  handleGoToSwitchWords(): void {
+    const category = this.suggestedCategory();
+    if (category) {
+      this.navigateToSwitchWords()(category);
+    }
+  }
+  
+  async shareGuidance(): Promise<void> {
+    const guidanceText = this.guidance()?.guidance;
+    if (!guidanceText || !navigator.share) return;
+    try {
+      await navigator.share({
+        title: 'A Moment of Cosmic Guidance',
+        text: `Feeling ${this.emotion()?.title}, I received this guidance:\n\n"${guidanceText}"\n\nFrom The Universe Guidance App`,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  }
+  
+  downloadGuidanceImage(): void {
+    const node = document.getElementById('guidance-card');
+    if (node) {
+      html2canvas(node, { 
+        backgroundColor: '#1e1b3a',
+        useCORS: true 
+      }).then((canvas: any) => {
+        const link = document.createElement('a');
+        link.download = `cosmic-guidance-${this.emotion()?.title.toLowerCase()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
     }
   }
 }
